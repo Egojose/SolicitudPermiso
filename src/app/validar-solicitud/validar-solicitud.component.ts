@@ -40,6 +40,7 @@ export class ValidarSolicitudComponent implements OnInit {
   ComentarioGH: boolean;
   MensajeAccion: string;
   objUsuariosGH: any[]=[];
+  objUsuariosGHcorreos: any[]=[];
 
   constructor( 
     private formBuilder: FormBuilder, 
@@ -93,7 +94,10 @@ export class ValidarSolicitudComponent implements OnInit {
     this.servicio.ObtenerUsuarioGH().then(
       (res)=>{
         let objUsuariosGH = [];
+        
+
         this.objUsuariosGH = res[0].GestionHumanaId;
+        this.objUsuariosGHcorreos = res[0].GestionHumana;
         let usuarioGH = this.objUsuariosGH.filter(x=> x === this.usuarioActual.idUsuario);
         if (usuarioGH.length > 0) {
             this.UsuarioHG = true;
@@ -166,7 +170,7 @@ export class ValidarSolicitudComponent implements OnInit {
         
         if (actualUser.length > 0) {
 
-          if (this.ObjSolicitud[0].estado === "En revision jefe" && (this.usuarioActual.idUsuario === actualUser.id)) {
+          if (this.ObjSolicitud[0].estado === "En revision jefe" && (this.usuarioActual.idUsuario === actualUser[0])) {
             this.AprobarJefe = true;
           }
         }
@@ -250,16 +254,21 @@ export class ValidarSolicitudComponent implements OnInit {
       FechaAprobacionLider: fecha,
       AprobacionLider: true,
       Estado: "En revision GH",
-      ResponsableActualId: this.objUsuariosGH
+      ResponsableActualId:  {
+        results: this.objUsuariosGH
+      }
+      
     }
 
-    this.MensajeAccion = "La solicitud se ha aprobado con éxito";
+    
     this.servicio.GuardarRespuestaJefe(ObjRespuestaJefe, this.idSolicitud).then(
       (itemResult)=>{
         let objServicio = {          
-          ResponsableActualId: this.objUsuariosGH,
+          ResponsableActualId: this.objUsuariosGH[0],
           Estado: "En revision GH"
         }
+        
+        this.MensajeAccion = "La solicitud se ha aprobado con éxito";
         this.enviarNotificacion(objServicio, "Aprobada");
         // this.guardarServicio(objServicio);   
       }
@@ -280,7 +289,9 @@ export class ValidarSolicitudComponent implements OnInit {
       FechaAprobacionLider: fecha,
       AprobacionLider: false,
       Estado: "Rechazado",
-      ResponsableActualId: -1
+      ResponsableActualId: {
+        results: [0]
+      },
     }
 
     this.MensajeAccion = "La solicitud ha sido rechazada con éxito";
@@ -302,6 +313,7 @@ export class ValidarSolicitudComponent implements OnInit {
   }
 
   RecibirSolicitud(){
+    console.log("jam");
     let fecha = new Date();
     let hora = fecha.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
     let observacionGH = this.SolicitudPermisoForm.controls["ObservacionGH"].value;
@@ -309,7 +321,9 @@ export class ValidarSolicitudComponent implements OnInit {
       HoraRecepcionGH: hora,
       FechaRecepcionGH: fecha,
       Estado: "Recibido por GH",
-      ResponsableActualId: -1,
+      ResponsableActualId: {
+        results: [0]
+      },
       ObservacionGH: observacionGH
     }
     this.MensajeAccion = "La solicitud ha sido recibida con éxito";
@@ -329,18 +343,22 @@ export class ValidarSolicitudComponent implements OnInit {
       }
     );
   }
-
+    
   enviarNotificacion(objServicio, accion): any {
     let correos = "";
           let TextoCorreo = '<p>Cordial saludo</p>'+
                             '<br>'+
                             '<p>Se le informa que la solicitud de permiso ha sido '+accion+'</p>';
-          this.objUsuariosGH.forEach(element => {
-            correos += element.EMail
+
+          this.objUsuariosGHcorreos.forEach(element => {
+            
+            correos += element.EMail +";";
+               
             console.log(correos);
           });
+
           const emailProps: EmailProperties = {
-            To: [correos],
+            To: correos.split(';'),
             CC: [this.EmailSolicitante],
             Subject: "Notificación de solicitud de permiso",
             Body: TextoCorreo,

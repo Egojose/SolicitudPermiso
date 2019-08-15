@@ -28,12 +28,15 @@ export class SPServicio {
         return configuracionSharepoint;
     }
 
+   
+
+
     public ObtenerConfiguracionConPost() {
         const configuracionSharepoint = sp.configure({
             headers: {
                 'Accept': 'application/json; odata=verbose',
                 'Content-Type': 'application/json;odata=verbose',
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCIsImtpZCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYXJpYmFzYXMuc2hhcmVwb2ludC5jb21AM2FjZDI5NDUtNDdlOC00YTVjLTljNjgtMjkzOTY5MTA5ZTRkIiwiaXNzIjoiMDAwMDAwMDEtMDAwMC0wMDAwLWMwMDAtMDAwMDAwMDAwMDAwQDNhY2QyOTQ1LTQ3ZTgtNGE1Yy05YzY4LTI5Mzk2OTEwOWU0ZCIsImlhdCI6MTU2NTgwMDA1NSwibmJmIjoxNTY1ODAwMDU1LCJleHAiOjE1NjU4MjkxNTUsImlkZW50aXR5cHJvdmlkZXIiOiIwMDAwMDAwMS0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDBAM2FjZDI5NDUtNDdlOC00YTVjLTljNjgtMjkzOTY5MTA5ZTRkIiwibmFtZWlkIjoiNTdjMWUwNjctOWM1My00MjQ4LWE2MmEtZmJhZGI3YWMwODUyQDNhY2QyOTQ1LTQ3ZTgtNGE1Yy05YzY4LTI5Mzk2OTEwOWU0ZCIsIm9pZCI6ImQ4ZWNhM2E3LTBiNTUtNDJhNy1iYTk3LTMxNTJjZjZkZTI0MCIsInN1YiI6ImQ4ZWNhM2E3LTBiNTUtNDJhNy1iYTk3LTMxNTJjZjZkZTI0MCIsInRydXN0ZWRmb3JkZWxlZ2F0aW9uIjoiZmFsc2UifQ.RunQU3LDMwQtTAGcbA4IRZAUGPp2GReQ4N1msPsgDk_49UK9gVbOLxidnIrTCDX8nqocF8CP_0LRFMjlWtnv1SYtM4Ms3hj4221oxQ8cBApkxzSxgV3NH0gHn5-0M8kgNMQEQTBO7H8yXX4vtbPDa1OipvE28hgD-3IswFPOdAyj7Od2mMFbII-8SLuC4jNFvtG7TxqTvcMrOllZMQRhCFE-WlYf3NwDBZjhQ0wpxXoTTuuTAf6XFfE3a1d2eDfVtew1npkd8wdX5RuuQDNEtAfvKht6udEVSdOQF-qrh_ceFAAwqXDkIccUInpaJYNiEmGXqMxQVwCl0ee6TzXdsw'
+                'Authorization': 'Bearer Feliz cumpleaños, mis mejores deseos un abrazo y exitos'
             }
         }, environment.urlWeb);
 
@@ -56,6 +59,14 @@ export class SPServicio {
         let respuesta = from(this.ObtenerConfiguracion().web.currentUser.get());
         return respuesta;
     }
+
+    async ObtenerUsuarioPorID(id) {        
+        let respuesta = await this.ObtenerConfiguracion().web.siteUsers.getById(id).get();        
+        return respuesta;
+    }
+
+   
+
 
     ObtenerTodosLosUsuarios() {
         let respuesta = from(this.ObtenerConfiguracion().web.siteUsers.select('*', 'User/Department').expand('User').get());
@@ -108,7 +119,7 @@ export class SPServicio {
     }
     
     ObtenerUsuarioGH(){
-        let respuesta = this.ObtenerConfiguracion().web.lists.getByTitle(environment.ListaUsuariosAprobadores).items.getAll();
+        let respuesta = this.ObtenerConfiguracion().web.lists.getByTitle(environment.ListaUsuariosAprobadores).items.select("*","GestionHumana/EMail").expand("GestionHumana").getAll();
         return respuesta;
     }
     
